@@ -1,0 +1,127 @@
+
+ubuntu安装es
+sudo apt update
+sudo apt install openjdk-17-jdk   # 安装 JDK 17
+java -version                    # 验证安装
+
+# 导入 ES 的 GPG 密钥
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+# 添加 ES 仓库到系统
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+# 更新并安装 ES
+sudo apt update
+sudo apt install elasticsearch
+
+# 如果apt下载比较慢，可以手动下载并上传到服务器
+https://mirrors.huaweicloud.com/elasticsearch/7.10.2/elasticsearch-7.10.2-linux-x86_64.tar.gz
+tar -xvf elasticsearch-7.10.2-linux-x86_64.tar.gz
+sudo mv elasticsearch-7.10.2 /usr/share/elasticsearch
+cd /usr/share/elasticsearch/config
+vi elasticsearch.yml
+添加或设置如下
+network.host: 0.0.0.0  # 允许任何IP访问
+http.port: 9200        # 设置HTTP端口为9200
+# 创建 elasticsearch 用户
+adduser elasticsearch
+# 设置用户密码
+passwd 123456
+# 为 elasticsearch 用户添加 sudo 权限（可选）
+usermod -aG sudo elasticsearch
+# 更改 Elasticsearch 目录的所有者
+chown -R elasticsearch:elasticsearch /usr/share/elasticsearch
+创建启动任务
+sudo vi /lib/systemd/system/elasticsearch.service
+添加以下内容
+
+[Unit]
+Description=Elasticsearch
+Documentation=https://www.elastic.co
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+# the elasticsearch process currently sends the notifications back to systemd
+# and for some reason exec does not work (even though it is a child). We should change
+# this notify access back to main (the default), see https://github.com/elastic/elasticsearch/issues/86475
+NotifyAccess=all
+RuntimeDirectory=elasticsearch
+PrivateTmp=true
+Environment=ES_HOME=/usr/share/elasticsearch
+Environment=ES_PATH_CONF=/etc/elasticsearch
+Environment=PID_DIR=/var/run/elasticsearch
+Environment=ES_SD_NOTIFY=true
+EnvironmentFile=-/etc/default/elasticsearch
+
+WorkingDirectory=/usr/share/elasticsearch
+
+User=elasticsearch
+Group=elasticsearch
+
+ExecStart=/usr/share/elasticsearch/bin/systemd-entrypoint -p ${PID_DIR}/elasticsearch.pid --quiet
+
+# StandardOutput is configured to redirect to journalctl since
+# some error messages may be logged in standard output before
+# elasticsearch logging system is initialized. Elasticsearch
+# stores its logs in /var/log/elasticsearch and does not use
+# journalctl by default. If you also want to enable journalctl
+# logging, you can simply remove the "quiet" option from ExecStart.
+StandardOutput=journal
+StandardError=inherit
+
+# Specifies the maximum file descriptor number that can be opened by this process
+LimitNOFILE=65535
+
+# Specifies the maximum number of processes
+LimitNPROC=4096
+
+# Specifies the maximum size of virtual memory
+LimitAS=infinity
+
+# Specifies the maximum file size
+LimitFSIZE=infinity
+
+# Disable timeout logic and wait until process is stopped
+TimeoutStopSec=0
+
+# SIGTERM signal is used to stop the Java process
+KillSignal=SIGTERM
+
+# Send the signal only to the JVM rather than its control group
+KillMode=process
+
+# Java process is never killed
+SendSIGKILL=no
+
+# When a JVM receives a SIGTERM signal it exits with code 143
+SuccessExitStatus=143
+
+# Allow a slow startup before the systemd notifier module kicks in to extend the timeout
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target
+
+# Built for packages-8.18.3 (packages)
+
+
+
+systemctl daemon-reload
+
+更新系统配置文件
+vi /etc/sysctl.conf //添加或更新
+vm.max_map_count=262144
+sudo sysctl -p
+
+更新配置文件
+vi /usr/share/elasticsearch/config/elasticsearch.yml    //更新或添加
+cluster.initial_master_nodes: ["node-1"]
+
+运行es
+su - elasticsearch
+cd /usr/share/elasticsearch/bin
+./elasticsearch
+
+验证
+curl http://localhost:9200
+./elasticsearch -E "http.port=9200"
