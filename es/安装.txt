@@ -39,44 +39,31 @@ sudo vi /lib/systemd/system/elasticsearch.service
 添加以下内容
 
 [Unit]
-Description=Elasticsearch
+Description=Elasticsearch service
 Documentation=https://www.elastic.co
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-Type=notify
-NotifyAccess=all
-RuntimeDirectory=elasticsearch
-PrivateTmp=true
-Environment=ES_HOME=/usr/share/elasticsearch
-Environment=ES_PATH_CONF=/etc/elasticsearch
-Environment=PID_DIR=/var/run/elasticsearch
-Environment=ES_SD_NOTIFY=true
-EnvironmentFile=-/etc/default/elasticsearch
-WorkingDirectory=/usr/share/elasticsearch
-
+Type=simple
 User=elasticsearch
 Group=elasticsearch
-
-ExecStart=/usr/share/elasticsearch/bin/systemd-entrypoint -p ${PID_DIR}/elasticsearch.pid --quiet
-
+ExecStart=/usr/share/elasticsearch/bin/elasticsearch
+LimitMEMLOCK=infinity
+Environment=ES_JAVA_OPTS="-Xms512m -Xmx512m"
+Restart=on-failure
+RestartSec=30s
+StartLimitInterval=300s
+StartLimitBurst=5
+LimitNOFILE=65536
+LimitNPROC=4096
 StandardOutput=journal
 StandardError=inherit
-LimitNOFILE=65535
-LimitNPROC=4096
-LimitAS=infinity
-LimitFSIZE=infinity
-TimeoutStopSec=0
-KillSignal=SIGTERM
-KillMode=process
-SendSIGKILL=no
-SuccessExitStatus=143
-TimeoutStartSec=900
+SyslogIdentifier=elasticsearch
+TasksMax=infinity
 
 [Install]
 WantedBy=multi-user.target
-
 
 systemctl daemon-reload
 
@@ -86,6 +73,8 @@ vm.max_map_count=262144
 sudo sysctl -p
 
 运行es
+systemctl start elasticsearch
+或手动
 su - elasticsearch
 cd /usr/share/elasticsearch/bin
 ./elasticsearch
@@ -109,3 +98,28 @@ i18n.locale: "zh-CN"
 
 chown -R rbt:rbt /usr/share/kibana/
 
+vi /lib/systemd/system/kibana.service
+
+[Unit]
+Description=Kibana Service
+Documentation=https://www.elastic.co/guide/en/kibana/current/index.html
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=NODE_OPTIONS=--max-old-space-size=1800
+User=elasticsearch
+Group=elasticsearch
+ExecStart=/usr/share/kibana/bin/kibana
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl enable kibana
+
+手动启动
+cd /usr/share/kibana
+./kibana
