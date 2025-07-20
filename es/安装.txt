@@ -67,7 +67,7 @@ WantedBy=multi-user.target
 
 systemctl daemon-reload
 
-更新系统配置文件
+更新系统配置文件（设置内存映射区域的大小）
 vi /etc/sysctl.conf //添加或更新
 vm.max_map_count=262144
 sudo sysctl -p
@@ -84,6 +84,7 @@ curl http://localhost:9200
 ./elasticsearch -E "http.port=9200"
 
 安装kibana
+kibana的版本要和es基本一致，否则有兼容问题
 下载
 https://artifacts.elastic.co/downloads/kibana/kibana-7.10.0-linux-x86_64.tar.gz
 tar -xvf kibana-7.10.0-linux-x86_64.tar.gz
