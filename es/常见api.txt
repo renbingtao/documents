@@ -150,6 +150,12 @@ GET /products/_search
     ]
   }
 }
+备注：
+match：标准全文查询，会对查询文本进行分词处理。
+multi_match：多字段匹配查询，可以在多个字段上执行相同的查询。
+query_string：支持更复杂的查询语法，如布尔操作符、通配符等。
+simple_query_string：简化版的查询字符串，更安全，适合用户输入。
+
 
 7. 精确匹配
 查找name.keyword字段精确等于iPhone 14的文档。
