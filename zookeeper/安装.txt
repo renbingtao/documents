@@ -25,6 +25,8 @@ vi /usr/local/zookeeper/conf/zoo.cfg
 dataDir=/usr/local/zookeeper/data
 dataLogDir=/usr/local/zookeeper/datalog
 admin.serverPort=2182
+# 默认zk只监听127.0.0.1，测试环境把地址全开放
+clientPortAddress=0.0.0.0
 
 设置服务
 vi /lib/systemd/system/zookeeper.service
