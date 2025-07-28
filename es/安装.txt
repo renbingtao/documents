@@ -124,3 +124,12 @@ systemctl enable kibana
 手动启动
 cd /usr/share/kibana
 ./kibana
+
+安装kibana
+kibana是es的图形化界面
+apt install elasticsearch
+vi /etc/kibana/kibana.yml
+添加或更新
+server.host: "0.0.0.0"
+这样就会监听全部ip。如果配置localhost，则只会监听本地
+访问http://localhost:5601/app/home#/
