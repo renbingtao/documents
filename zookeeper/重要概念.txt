@@ -32,3 +32,8 @@ zk集群由1个leader和多个follower组成，leader负责读写请求，follow
 4.zk监听到有数据或路径变化时，就将这个消息发送给listener线程
 5.线程内部调用process方法
 注册是一次性的，如果需要继续监听要重新注册
+
+写数据
+如果客户端连接的是follower，且是写请求，则follower把请求转发给leader。如果客户端连接的是leader，则leader直接处理
+leader收到写请求后，自己先执行，然后让其他follower执行，等待返回。超过半数（不能是刚好半数）节点（包括leader自己）都写完并应答后，leader向客户端返回成功（或返回给follower，由follower返回给客户端）
+其他未写完的follower继续写，写完应答给leader
