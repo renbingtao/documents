@@ -37,3 +37,27 @@ zk集群由1个leader和多个follower组成，leader负责读写请求，follow
 如果客户端连接的是follower，且是写请求，则follower把请求转发给leader。如果客户端连接的是leader，则leader直接处理
 leader收到写请求后，自己先执行，然后让其他follower执行，等待返回。超过半数（不能是刚好半数）节点（包括leader自己）都写完并应答后，leader向客户端返回成功（或返回给follower，由follower返回给客户端）
 其他未写完的follower继续写，写完应答给leader
+
+znode数据版本
+新建znode节点并设置值后，值的版本（version字段）为0（get -s /path来查看版本）
+通过set更新值后，version++
+zk本身不会保留老版本的值
+版本号可用于乐观锁的实现
+// 乐观锁示例：只有版本匹配时才更新，类似cas
+zk.setData("/node", newData, expectedVersion);
+
+
+zk常用的监听事件
+事件类型	                触发条件	                                        常用监听API
+NodeCreated	            被监听的节点被创建（之前不存在）	                exists(path, true)
+NodeDeleted	            被监听的节点被删除	                            exists(path, true) 或 getData(path, true)
+NodeDataChanged	        被监听的节点数据发生变更	                        exists(path, true) 或 getData(path, true)
+NodeChildrenChanged	    被监听的节点的子节点列表发生变化（增/删子节点）	    getChildren(path, true)
+
+NodeDataChanged事件无法获取变更前的值，如有需求，需要在代码中手动维护
+
+zk分布式锁
+1.抢锁：多个客户端在某个特定znode下创建临时有序节点，zk可以保证顺序性
+2.客户端创建成功后，判断自己是否是该znode节点下的最小节点，是则获取到锁；不是则监听上一个节点（exists，判断是否为删除事件）
+3.获取到锁的客户端执行完任务后，删除临时节点（下一个节点会监听到事件，然后重复第二步判断）
+这种方案会导致客户端一直等待，直到获取锁。此外是公平锁

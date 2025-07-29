@@ -3,6 +3,8 @@
 create /path "value"
 这种方式创建的节点为持久化无序号
 添加-e改为非持久化，-s改为有序号
+不能越级创建，只能一级一级创建
+create -e -s /path/seq- 创建的节点 /path/seq-0000000000
 
 查看节点的值
 get /path
