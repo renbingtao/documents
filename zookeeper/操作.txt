@@ -30,5 +30,3 @@ stat /path
 监听节点值的变化：get -w /my_path   当/my_path的值被修改时，客户端会收到一条消息，内容类似于WATCHER:: WatchedEvent state:SyncConnected type:NodeDataChanged path:/my_path
 节点的子节点变化监听：ls -w /my_path   比如子节点的路径变化，或新增/删除子节点。type为NodeChildrenChanged
 
-java客户端
-
