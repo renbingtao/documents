@@ -52,7 +52,7 @@ zk常用的监听事件
 NodeCreated	            被监听的节点被创建（之前不存在）	                exists(path, true)
 NodeDeleted	            被监听的节点被删除	                            exists(path, true) 或 getData(path, true)
 NodeDataChanged	        被监听的节点数据发生变更	                        exists(path, true) 或 getData(path, true)
-NodeChildrenChanged	    被监听的节点的子节点列表发生变化（增/删子节点）	    getChildren(path, true)
+NodeChildrenChanged	    被监听的节点的子节点列表发生变化（增/删子节点）	getChildren(path, true)
 
 NodeDataChanged事件无法获取变更前的值，如有需求，需要在代码中手动维护
 
