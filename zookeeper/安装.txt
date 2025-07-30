@@ -1,25 +1,24 @@
 
 ================================安装================================
-在官网下载，以3.9.3为例
-https://www.apache.org/dyn/closer.lua/zookeeper/zookeeper-3.9.3/apache-zookeeper-3.9.3-bin.tar.gz
+在官网下载，以3.5.7为例
+https://archive.apache.org/dist/zookeeper/zookeeper-3.5.7/apache-zookeeper-3.5.7-bin.tar.gz
 
 上传至服务器并解压
-tar -zxvf apache-zookeeper-3.9.3-bin.tar.gz
+tar -zxvf apache-zookeeper-3.5.7-bin.tar.gz
 
 移动至自己喜欢的位置
-mv apache-zookeeper-3.9.3-bin /usr/local
+mv apache-zookeeper-3.5.7-bin /usr/local
 cd /usr/local
-mv apache-zookeeper-3.9.3-bin/ zookeeper
+mv apache-zookeeper-3.5.7-bin/ zookeeper
 
 配置环境变量
-export ZOOKEEPER_HOME=/usr/local/zookeeper
-export PATH=$PATH:$ZOOKEEPER_HOME/bin
+export PATH=$PATH:/usr/local/zookeeper/bin
 vi /etc/profile
 新增
-export ZOOKEEPER_HOME=/usr/local/zookeeper
-export PATH=$PATH:$ZOOKEEPER_HOME/bin
+export PATH=$PATH:/usr/local/zookeeper/bin
 
 配置zookeeper
+cp /usr/local/zookeeper/conf/zoo_sample.cfg /usr/local/zookeeper/conf/zoo.cfg
 vi /usr/local/zookeeper/conf/zoo.cfg
 新增
 dataDir=/usr/local/zookeeper/data
