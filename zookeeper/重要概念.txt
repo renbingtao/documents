@@ -22,7 +22,7 @@ zk集群由1个leader和多个follower组成，leader负责读写请求，follow
 软负载均衡等
 
 节点类型
-持久化/非持久化：在客户端与服务端断开连接后，持久化节点仍会存在，而非持久化节点会删除
+持久化/非持久化：在客户端与服务端断开连接后，持久化节点仍会存在，而非持久化节点会删除。临时节点不能有子节点。节点类型创建后确定，无法修改
 有序号/无序号：序号类似于数据库的自增主键，由zk维护。新建一个已存在的节点，若该节点是无序号则会报错，有序号则会更新序号
 
 监听机制原理
@@ -52,7 +52,7 @@ zk常用的监听事件
 NodeCreated	            被监听的节点被创建（之前不存在）	                exists(path, true)
 NodeDeleted	            被监听的节点被删除	                            exists(path, true) 或 getData(path, true)
 NodeDataChanged	        被监听的节点数据发生变更	                        exists(path, true) 或 getData(path, true)
-NodeChildrenChanged	    被监听的节点的子节点列表发生变化（增/删子节点）	getChildren(path, true)
+NodeChildrenChanged	    被监听的节点的子节点列表发生变化（增/删子节点）	    getChildren(path, true)
 
 NodeDataChanged事件无法获取变更前的值，如有需求，需要在代码中手动维护
 
